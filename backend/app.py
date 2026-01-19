@@ -273,23 +273,55 @@ def predict():
     # Sort and Assign integer rank
     results.sort(key=lambda x: x['predicted_position_raw'])
     
+    # F1 Points System (top 10)
+    points_system = {1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 6: 8, 7: 6, 8: 4, 9: 2, 10: 1}
+    
     final_order = []
     story_events = []
+    radio_messages = []
 
     for rank, res in enumerate(results, 1):
         res['predicted_rank'] = rank
-        # Calculate actual Gain/Loss based on rank
-        # Gain = Start - Finish (Positive = Good)
         res['gain_loss'] = res['start_pos'] - rank 
+        res['points'] = points_system.get(rank, 0)
         final_order.append(res)
         
-        # Generate Story Snippets
-        if res['gain_loss'] >= 3:
-            story_events.append(f"Lap {np.random.randint(10, 50)}: {res['code']} makes a brilliant overtake to move up the order!")
-        elif res['gain_loss'] <= -3:
-            story_events.append(f"Lap {np.random.randint(10, 50)}: {res['code']} struggles with tyre degradation and loses positions.")
-        elif rank == 1:
+        # Generate Story Snippets & Radio
+        # WINNER
+        if rank == 1:
             story_events.append(f"Finish: {res['code']} takes the chequered flag to win!")
+            radio_messages.append({
+                'driver': res['code'],
+                'message': "Simply lovely! Great job guys, the car was on rails.",
+                'lap': 'Finish'
+            })
+            
+        # PODIUM (2-3)
+        elif rank <= 3:
+            story_events.append(f"Finish: {res['code']} crosses the line to take a podium spot.")
+            radio_messages.append({
+                'driver': res['code'],
+                'message': "Double podium! Good points for the team.",
+                'lap': 'Finish'
+            })
+
+        # BIG MOVER (Gain > 4)
+        elif res['gain_loss'] >= 4:
+            story_events.append(f"Lap {np.random.randint(10, 50)}: {res['code']} is carving through the field!")
+            radio_messages.append({
+                'driver': res['code'],
+                'message': "What a race! From P" + str(res['start_pos']) + " to P" + str(rank) + ". Mega.",
+                'lap': 'Cool-down'
+            })
+
+        # BAD RACE (Loss < -4)
+        elif res['gain_loss'] <= -4:
+            story_events.append(f"Lap {np.random.randint(10, 50)}: {res['code']} is struggling massively with grip.")
+            radio_messages.append({
+                'driver': res['code'],
+                'message': "I have no grip! Tires are gone.",
+                'lap': '45'
+            })
             
     # Add weather context
     if is_wet:
@@ -299,7 +331,8 @@ def predict():
 
     return jsonify({
         'classification': final_order,
-        'story': story_events
+        'story': story_events,
+        'radio': radio_messages
     })
 
 if __name__ == '__main__':

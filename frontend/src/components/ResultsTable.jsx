@@ -47,7 +47,8 @@ export function ResultsTable({ results }) {
                     <div className="grid grid-cols-12 text-[10px] uppercase tracking-wider text-white/30 px-3 pb-2">
                         <div className="col-span-1">Pos</div>
                         <div className="col-span-3">Driver</div>
-                        <div className="col-span-4 text-center">Start</div>
+                        <div className="col-span-2 text-center">Start</div>
+                        <div className="col-span-2 text-center">Pts</div>
                         <div className="col-span-4 text-right">Gain/Loss</div>
                     </div>
 
@@ -64,14 +65,18 @@ export function ResultsTable({ results }) {
                             `}
                         >
                             <div className={`col-span-1 font-mono font-bold text-lg ${i === 0 ? 'text-yellow-400' :
-                                    i === 1 ? 'text-gray-300' :
-                                        i === 2 ? 'text-orange-400' : 'text-white/40'
+                                i === 1 ? 'text-gray-300' :
+                                    i === 2 ? 'text-orange-400' : 'text-white/40'
                                 }`}>{r.predicted_rank}</div>
 
                             <div className="col-span-3 font-bold text-sm tracking-wide">{r.code}</div>
 
-                            <div className="col-span-4 text-center text-xs text-white/40 font-mono">
+                            <div className="col-span-2 text-center text-xs text-white/40 font-mono">
                                 P{r.start_pos}
+                            </div>
+
+                            <div className="col-span-2 text-center text-sm font-bold text-white/80">
+                                {r.points > 0 ? `+${r.points}` : '-'}
                             </div>
 
                             <div className="col-span-4 flex justify-end">

@@ -6,12 +6,13 @@ import { ResultsTable } from './components/ResultsTable';
 import { TyreStrategy } from './components/TyreStrategy';
 import { CircuitInfo } from './components/CircuitInfo';
 import { SimulationLog } from './components/SimulationLog';
+import { TeamRadio } from './components/TeamRadio';
 import { CloudRain, PlayCircle, Gauge, Activity, Trophy } from 'lucide-react';
 
 function App() {
   const [raceData, setRaceData] = useState(null);
   const [strategyData, setStrategyData] = useState([]);
-  const [prediction, setPrediction] = useState(null); // Changed to object {classification, story}
+  const [prediction, setPrediction] = useState(null); // Changed to object {classification, story, radio}
   const [loading, setLoading] = useState(false);
 
   const handleRaceSelect = async (year, round) => {
@@ -53,7 +54,7 @@ function App() {
       };
 
       const res = await axios.post('http://localhost:5000/predict', payload);
-      setPrediction(res.data); // Expecting { classification: [], story: [] }
+      setPrediction(res.data); // Expecting { classification: [], story: [], radio: [] }
     } catch (e) {
       alert("Error running simulation. Ensure backend is running and model is trained.");
     } finally {
@@ -62,7 +63,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-f1-dark text-white p-4 md:p-6 font-sans selection:bg-f1-red selection:text-white">
+    <div className="min-h-screen bg-f1-dark text-white p-4 md:p-6 font-sans selection:bg-f1-red selection:text-white relative">
       <header className="max-w-[1600px] mx-auto mb-8 flex items-center justify-between border-b border-white/10 pb-4">
         <div>
           <h1 className="text-4xl font-black tracking-tighter italic flex items-center gap-2">
@@ -152,6 +153,11 @@ function App() {
         </div>
 
       </main>
+
+      {/* Overlays */}
+      {prediction && prediction.radio && (
+        <TeamRadio messages={prediction.radio} />
+      )}
     </div>
   );
 }
