@@ -38,8 +38,11 @@ export function RaceSelector({ onRaceSelect }) {
                 <select
                     value={year}
                     onChange={(e) => setYear(e.target.value)}
-                    className="bg-f1-gray/50 border border-white/10 rounded-lg p-3 outline-none focus:border-f1-red"
+                    className="bg-f1-gray/50 border border-white/10 rounded-lg p-3 outline-none focus:border-f1-red text-white"
                 >
+                    <option value={2026}>2026 (Next Gen)</option>
+                    <option value={2025}>2025</option>
+                    <option value={2024}>2024</option>
                     <option value={2023}>2023</option>
                     <option value={2022}>2022</option>
                 </select>
