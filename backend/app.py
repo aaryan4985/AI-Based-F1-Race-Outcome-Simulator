@@ -112,6 +112,11 @@ def get_race_data(year, round_num):
                 'year': year,
                 'round': round_num,
                 'event': f"Round {round_num} (Simulation)",
+                'circuit_info': {
+                    'location': 'Unknown',
+                    'country': 'Unknown',
+                    'name': f"Round {round_num} Circuit"
+                },
                 'is_wet': False,
                 'drivers': drivers_data
             })
@@ -168,6 +173,11 @@ def get_race_data(year, round_num):
             'year': year,
             'round': round_num,
             'event': session.event['EventName'],
+            'circuit_info': {
+                'location': session.event['Location'],
+                'country': session.event['Country'],
+                'name': session.event['EventName']
+            },
             'is_wet': is_wet,
             'drivers': drivers_data
         })
@@ -264,6 +274,8 @@ def predict():
     results.sort(key=lambda x: x['predicted_position_raw'])
     
     final_order = []
+    story_events = []
+
     for rank, res in enumerate(results, 1):
         res['predicted_rank'] = rank
         # Calculate actual Gain/Loss based on rank
@@ -271,7 +283,24 @@ def predict():
         res['gain_loss'] = res['start_pos'] - rank 
         final_order.append(res)
         
-    return jsonify(final_order)
+        # Generate Story Snippets
+        if res['gain_loss'] >= 3:
+            story_events.append(f"Lap {np.random.randint(10, 50)}: {res['code']} makes a brilliant overtake to move up the order!")
+        elif res['gain_loss'] <= -3:
+            story_events.append(f"Lap {np.random.randint(10, 50)}: {res['code']} struggles with tyre degradation and loses positions.")
+        elif rank == 1:
+            story_events.append(f"Finish: {res['code']} takes the chequered flag to win!")
+            
+    # Add weather context
+    if is_wet:
+        story_events.insert(0, "Race Control: Wet conditions declared. Intermediates are the tyre of choice.")
+    else:
+        story_events.insert(0, "Race Control: Dry conditions. Track temperature is optimal.")
+
+    return jsonify({
+        'classification': final_order,
+        'story': story_events
+    })
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
